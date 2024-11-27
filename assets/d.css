@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+h4 {
+    color: var(--color-blue-100);
+}
+
+@layer cc {
+    .example {
+        color: red;
+    }
+}
+
+@layer cc {
+    .bb {
+        color: blue;
+    }
+}

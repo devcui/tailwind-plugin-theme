@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@import './b.css';
+@source "c.css";
+
+
+h1 {
+  @apply font-bold;
+  color: var(--color-red-100);
+}
+
+p {
+  color: #000000;
+}

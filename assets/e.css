@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+h5 {
+    color: var(--color-blue-100);
+}

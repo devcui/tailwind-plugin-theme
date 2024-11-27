@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "name": { "type": "string" },
+    "input": { "type": "string" },
+    "theme": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/name"
+        },
+        "input": {
+          "$ref": "#/definitions/input"
+        }
+      }
+    }
+  },
+  "properties": {
+    "themes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/theme"
+      }
+    }
+  }
+}

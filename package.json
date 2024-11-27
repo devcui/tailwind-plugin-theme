@@ -2,16 +2,44 @@
   "name": "tailwind-plugin-theme",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "description": "Tailwind plugin theme",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devcui/tailwind-plugin-theme.git"
+  },
+  "bugs": {
+    "url": "https://github.com/devcui/tailwind-plugin-theme/issues"
+  },
+  "homepage": "https://github.com/devcui/tailwind-plugin-theme#readme",
+  "author": {
+    "name": "cui",
+    "email": "devcui@outlook.com"
+  },
+  "bin": {
+    "tailwin-plugin-theme": "./dist/index.mjs"
+  },
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
+    "build": "tsup-node",
+    "dev:build": "npm run build && node dist/index.mjs --input=assets/tw-theme.json --output=assets/output",
+    "dev:build:watch": "npm run build && node dist/index.mjs --input=assets/tw-theme.json --output=assets/output --watch --minify",
+    "dev:help": "node dist/index.mjs help",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "prepare": "husky",
-    "test": "vitest",
-    "test:cov": "vitest run --coverage"
+    "test": "vitest run --hideSkippedTests",
+    "test:cov": "vitest run --hideSkippedTests --coverage"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.0",
@@ -28,7 +56,24 @@
     "prettier": "^3.4.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.16.0",
-    "vite": "^6.0.0",
     "vitest": "^2.1.6"
+  },
+  "lint-staged": {
+    "**/*.{js,ts}": [
+      "eslint --fix"
+    ],
+    "**/*": "prettier --write --ignore-unknown"
+  },
+  "dependencies": {
+    "@parcel/watcher": "^2.5.0",
+    "@tailwindcss/cli": "4.0.0-beta.3",
+    "@tailwindcss/node": "4.0.0-beta.3",
+    "@tailwindcss/oxide": "4.0.0-beta.3",
+    "enhanced-resolve": "^5.17.1",
+    "lightningcss": "^1.28.2",
+    "mri": "^1.2.0",
+    "picocolors": "^1.1.1",
+    "tailwindcss": "4.0.0-beta.3",
+    "tsup": "^8.3.5"
   }
 }
