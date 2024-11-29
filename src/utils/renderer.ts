@@ -99,7 +99,10 @@ export function println(value = '') {
 
 function getVersion(): string {
   const { version } = JSON.parse(
-    fs.readFileSync(resolve('tailwind-plugin-theme/package.json'), 'utf-8'),
+    fs.readFileSync(
+      resolve('@rymcu/tailwind-plugin-theme/package.json'),
+      'utf-8',
+    ),
   );
   return version;
 }
