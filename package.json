@@ -1,17 +1,17 @@
 {
-  "name": "tailwind-plugin-theme",
+  "name": "@rymcu/tailwind-plugin-theme",
   "version": "4.0.0-beta.3",
   "description": "Tailwind plugin theme",
   "private": "false",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/devcui/tailwind-plugin-theme.git"
+    "url": "https://github.com/rymcu/tailwind-plugin-theme.git"
   },
   "bugs": {
-    "url": "https://github.com/devcui/tailwind-plugin-theme/issues"
+    "url": "https://github.com/rymcu/tailwind-plugin-theme/issues"
   },
-  "homepage": "https://github.com/devcui/tailwind-plugin-theme#readme",
+  "homepage": "https://github.com/rymcu/tailwind-plugin-theme/blob/master/README.md",
   "author": {
     "name": "cui",
     "email": "devcui@outlook.com"
