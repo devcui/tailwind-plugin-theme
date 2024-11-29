@@ -13,7 +13,7 @@ export const UI = {
   indent: 2,
 };
 export function header() {
-  return `${pc.italic(pc.bold(pc.blue('\u2248')))} tailwindcss ${pc.blue(`v${getVersion()}`)}`;
+  return `${pc.italic(pc.bold(pc.blue('\u2248')))} tailwind-plugin-theme ${pc.blue(`v${getVersion()}`)}`;
 }
 
 export function highlight(file: string) {
