@@ -24,7 +24,12 @@ extend tailwind compilation to compile the corresponding css according to the js
 
 - cli
 
-`npx @rymcu/tailwind-plugin-theme --input=<json> --output=<output>`
+```
+npm install @rymcu/tailwind-plugin-theme@latest
+
+// add into npm scripts
+tailwind-plugin-theme --input=<json> --output=<output>
+```
 
 - options
 
