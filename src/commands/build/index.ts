@@ -16,7 +16,6 @@ import { Disposables } from '../../utils/disposables';
 import {
   eprintln,
   formatDuration,
-  header,
   highlight,
   println,
   relative,
@@ -86,8 +85,8 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
 
     // Ensure the provided `--input` exists.
     if (!existsSync(args['--input'])) {
-      eprintln(header());
-      eprintln();
+      // eprintln(header());
+      // eprintln();
       eprintln(
         `Specified input file ${highlight(relative(args['--input']))} does not exist.`,
       );
@@ -315,8 +314,8 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
   if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Build CSS');
   await write(output, args);
   const end = process.hrtime.bigint();
-  eprintln(header());
-  eprintln();
+  // eprintln(header());
+  // eprintln();
   eprintln(`Done in ${formatDuration(end - start)}`);
 }
 

@@ -52,6 +52,7 @@ export async function buildTheme(args: Result<ReturnType<typeof options>>) {
   const themeArgs = generateArgs(themes, args);
   await Promise.all(
     themeArgs.map(async (arg) => {
+      eprintln(`building ${arg['--input']} file...`);
       await handle(arg);
     }),
   );

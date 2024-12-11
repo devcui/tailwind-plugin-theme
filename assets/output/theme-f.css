@@ -1,4 +1,5 @@
-/*! tailwindcss v4.0.0-beta.3 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.0.0-beta.6 | MIT License | https://tailwindcss.com */
+@layer theme, base, components, utilities;
 @layer theme {
   :root {
     --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
@@ -324,22 +325,25 @@
     --radius-2xl: 1rem;
     --radius-3xl: 1.5rem;
     --radius-4xl: 2rem;
-    --shadow-2xs: 0 1px #0000000d;
-    --shadow-xs: 0 1px 2px 0 #0000000d;
-    --shadow-sm: 0 1px 3px 0 #0000001a, 0 1px 2px -1px #0000001a;
-    --shadow-md: 0 4px 6px -1px #0000001a, 0 2px 4px -2px #0000001a;
-    --shadow-lg: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;
-    --shadow-xl: 0 20px 25px -5px #0000001a, 0 8px 10px -6px #0000001a;
-    --shadow-2xl: 0 25px 50px -12px #00000040;
-    --inset-shadow-2xs: inset 0 1px #0000000d;
-    --inset-shadow-xs: inset 0 1px 1px #0000000d;
-    --inset-shadow-sm: inset 0 2px 4px #0000000d;
-    --drop-shadow-xs: 0 1px 1px #0000000d;
-    --drop-shadow-sm: 0 1px 2px #00000026;
-    --drop-shadow-md: 0 3px 3px #0000001f;
-    --drop-shadow-lg: 0 4px 4px #00000026;
-    --drop-shadow-xl: 0 9px 7px #0000001a;
-    --drop-shadow-2xl: 0 25px 25px #00000026;
+    --shadow-2xs: 0 1px rgb(0 0 0 / 0.05);
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --inset-shadow-2xs: inset 0 1px rgb(0 0 0 / 0.05);
+    --inset-shadow-xs: inset 0 1px 1px rgb(0 0 0 / 0.05);
+    --inset-shadow-sm: inset 0 2px 4px rgb(0 0 0 / 0.05);
+    --drop-shadow-xs: 0 1px 1px rgb(0 0 0 / 0.05);
+    --drop-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
+    --drop-shadow-md: 0 3px 3px rgb(0 0 0 / 0.12);
+    --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
+    --drop-shadow-xl: 0 9px 7px rgb(0 0 0 / 0.1);
+    --drop-shadow-2xl: 0 25px 25px rgb(0 0 0 / 0.15);
     --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
@@ -359,7 +363,7 @@
     --perspective-normal: 500px;
     --perspective-midrange: 800px;
     --perspective-distant: 1200px;
-    --default-transition-duration: 0.15s;
+    --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
     --default-font-feature-settings: var(--font-sans--font-feature-settings);
@@ -377,25 +381,20 @@
 }
 @layer base {
   *,
-  :after,
-  :before,
-  ::backdrop {
-    box-sizing: border-box;
-    border: 0 solid;
-    margin: 0;
-    padding: 0;
-  }
+  ::after,
+  ::before,
+  ::backdrop,
   ::file-selector-button {
     box-sizing: border-box;
-    border: 0 solid;
     margin: 0;
     padding: 0;
+    border: 0 solid;
   }
   html,
   :host {
+    line-height: 1.5;
     -webkit-text-size-adjust: 100%;
     tab-size: 4;
-    line-height: 1.5;
     font-family: var(
       --default-font-family,
       ui-sans-serif,
@@ -434,8 +433,6 @@
   a {
     color: inherit;
     -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
-    -webkit-text-decoration: inherit;
     text-decoration: inherit;
   }
   b,
@@ -469,10 +466,10 @@
   }
   sub,
   sup {
-    vertical-align: baseline;
     font-size: 75%;
     line-height: 0;
     position: relative;
+    vertical-align: baseline;
   }
   sub {
     bottom: -0.25em;
@@ -507,8 +504,8 @@
   iframe,
   embed,
   object {
-    vertical-align: middle;
     display: block;
+    vertical-align: middle;
   }
   img,
   video {
@@ -519,25 +516,16 @@
   input,
   select,
   optgroup,
-  textarea {
-    font: inherit;
-    font-feature-settings: inherit;
-    font-variation-settings: inherit;
-    letter-spacing: inherit;
-    color: inherit;
-    opacity: 1;
-    background-color: #0000;
-    border-radius: 0;
-  }
+  textarea,
   ::file-selector-button {
     font: inherit;
     font-feature-settings: inherit;
     font-variation-settings: inherit;
     letter-spacing: inherit;
     color: inherit;
-    opacity: 1;
-    background-color: #0000;
     border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
   }
   :where(select:is([multiple], [size])) optgroup {
     font-weight: bolder;
@@ -568,30 +556,14 @@
   ::-webkit-datetime-edit-fields-wrapper {
     padding: 0;
   }
-  ::-webkit-datetime-edit {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-year-field {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-month-field {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-day-field {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-hour-field {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-minute-field {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-second-field {
-    padding-block: 0;
-  }
-  ::-webkit-datetime-edit-millisecond-field {
-    padding-block: 0;
-  }
+  ::-webkit-datetime-edit,
+  ::-webkit-datetime-edit-year-field,
+  ::-webkit-datetime-edit-month-field,
+  ::-webkit-datetime-edit-day-field,
+  ::-webkit-datetime-edit-hour-field,
+  ::-webkit-datetime-edit-minute-field,
+  ::-webkit-datetime-edit-second-field,
+  ::-webkit-datetime-edit-millisecond-field,
   ::-webkit-datetime-edit-meridiem-field {
     padding-block: 0;
   }
@@ -599,15 +571,11 @@
     box-shadow: none;
   }
   button,
-  input:where([type='button'], [type='reset'], [type='submit']) {
-    appearance: button;
-  }
+  input:where([type='button'], [type='reset'], [type='submit']),
   ::file-selector-button {
     appearance: button;
   }
-  ::-webkit-inner-spin-button {
-    height: auto;
-  }
+  ::-webkit-inner-spin-button,
   ::-webkit-outer-spin-button {
     height: auto;
   }
@@ -615,7 +583,6 @@
     display: none !important;
   }
 }
-@layer components;
 @layer utilities {
   .absolute {
     position: absolute;
@@ -626,16 +593,9 @@
   .contents {
     display: contents;
   }
-  .table {
-    display: table;
-  }
   .transform {
     transform: var(--tw-rotate-x) var(--tw-rotate-y) var(--tw-rotate-z)
       var(--tw-skew-x) var(--tw-skew-y);
-  }
-  .font-bold {
-    --tw-font-weight: var(--font-weight-bold);
-    font-weight: var(--font-weight-bold);
   }
   .italic {
     font-style: italic;
@@ -645,6 +605,9 @@
       var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,)
       var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
+  .\[default\: \`\.\`\] {
+    default:  `.`;
+  }
 }
 h6 {
   color: var(--color-blue-100);
@@ -652,15 +615,14 @@ h6 {
 @supports (-moz-orient: inline) {
   @layer base {
     *,
-    :before,
-    :after,
+    ::before,
+    ::after,
     ::backdrop {
       --tw-rotate-x: rotateX(0);
       --tw-rotate-y: rotateY(0);
       --tw-rotate-z: rotateZ(0);
       --tw-skew-x: skewX(0);
       --tw-skew-y: skewY(0);
-      --tw-font-weight: initial;
       --tw-blur: initial;
       --tw-brightness: initial;
       --tw-contrast: initial;
@@ -680,9 +642,9 @@ h6 {
 }
 @keyframes ping {
   75%,
-  to {
-    opacity: 0;
+  100% {
     transform: scale(2);
+    opacity: 0;
   }
 }
 @keyframes pulse {
@@ -692,13 +654,13 @@ h6 {
 }
 @keyframes bounce {
   0%,
-  to {
-    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  100% {
     transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
   50% {
-    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
 }
 @property --tw-rotate-x {
@@ -725,10 +687,6 @@ h6 {
   syntax: '*';
   inherits: false;
   initial-value: skewY(0);
-}
-@property --tw-font-weight {
-  syntax: '*';
-  inherits: false;
 }
 @property --tw-blur {
   syntax: '*';
