@@ -1,10 +1,7 @@
-// Copyright (c) Tailwind Labs, Inc. (Original)
-// Copyright (c) 2024 devcui (Modified)
-//
-// Licensed under the MIT License. See LICENSE file for details.
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 
 import watcher from '@parcel/watcher';
-import { compile, env } from '@tailwindcss/node';
+import { compile, env, Instrumentation } from '@tailwindcss/node';
 import { clearRequireCache } from '@tailwindcss/node/require-cache';
 import { Scanner, type ChangedContent } from '@tailwindcss/oxide';
 import { Features, transform } from 'lightningcss';
@@ -16,11 +13,15 @@ import { Disposables } from '../../utils/disposables';
 import {
   eprintln,
   formatDuration,
+  header,
   highlight,
   println,
   relative,
 } from '../../utils/renderer';
 import { drainStdin, outputFile } from './utils';
+
+const css = String.raw;
+const DEBUG = env.DEBUG;
 
 export function options() {
   return {
@@ -56,8 +57,6 @@ export function options() {
   } satisfies Arg;
 }
 
-const css = String.raw;
-
 async function handleError<T>(fn: () => T): Promise<T> {
   try {
     return await fn();
@@ -70,6 +69,9 @@ async function handleError<T>(fn: () => T): Promise<T> {
 }
 
 export async function handle(args: Result<ReturnType<typeof options>>) {
+  using I = new Instrumentation();
+  DEBUG && I.start('[@tailwindcss-theme-plugin] (initial build)');
+
   const base = path.resolve(args['--cwd']);
 
   // Resolve the output as an absolute path.
@@ -109,18 +111,22 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
     optimizedCss: '',
   };
 
-  async function write(css: string, args: Result<ReturnType<typeof options>>) {
+  async function write(
+    css: string,
+    args: Result<ReturnType<typeof options>>,
+    I: Instrumentation,
+  ) {
     let output = css;
 
     // Optimize the output
     if (args['--minify'] || args['--optimize']) {
       if (css !== previous.css) {
-        if (env.DEBUG) console.time('[@tailwindcss/cli] Optimize CSS');
+        DEBUG && I.start('Optimize CSS');
         const optimizedCss = optimizeCss(css, {
           file: args['--input'] ?? 'input.css',
           minify: args['--minify'] ?? false,
         });
-        if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Optimize CSS');
+        DEBUG && I.end('Optimize CSS');
         previous.css = css;
         previous.optimizedCss = optimizedCss;
         output = optimizedCss;
@@ -130,25 +136,28 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
     }
 
     // Write the output
-    if (env.DEBUG) console.time('[@tailwindcss/cli] Write output');
+    DEBUG && I.start('Write output');
     if (args['--output']) {
       await outputFile(args['--output'], output);
     } else {
       println(output);
     }
-    if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Write output');
+    DEBUG && I.end('Write output');
   }
 
   const inputFilePath =
     args['--input'] && args['--input'] !== '-'
       ? path.resolve(args['--input'])
       : null;
+
   const inputBasePath = inputFilePath
     ? path.dirname(inputFilePath)
     : process.cwd();
+
   let fullRebuildPaths: string[] = inputFilePath ? [inputFilePath] : [];
-  async function createCompiler(css: string) {
-    if (env.DEBUG) console.time('[@tailwindcss/cli] Setup compiler');
+
+  async function createCompiler(css: string, I: Instrumentation) {
+    DEBUG && I.start('Setup compiler');
     const compiler = await compile(css, {
       base: inputBasePath,
       onDependency(path) {
@@ -172,11 +181,13 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
     })().concat(compiler.globs);
 
     const scanner = new Scanner({ sources });
-    if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Setup compiler');
+    DEBUG && I.end('Setup compiler');
 
     return [compiler, scanner] as const;
   }
-  let [compiler, scanner] = await handleError(() => createCompiler(input));
+
+  let [compiler, scanner] = await handleError(() => createCompiler(input, I));
+
   // Watch for changes
   if (args['--watch']) {
     let cleanupWatchers = await createWatchers(
@@ -186,6 +197,12 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
           // If the only change happened to the output file, then we don't want to
           // trigger a rebuild because that will result in an infinite loop.
           if (files.length === 1 && files[0] === args['--output']) return;
+
+          using I = new Instrumentation();
+          DEBUG && I.start('[@tailwindcss-plugin-theme] (watcher)');
+
+          // Re-compile the input
+          const start = process.hrtime.bigint();
 
           const changedFiles: ChangedContent[] = [];
           let rebuildStrategy: 'incremental' | 'full' = 'incremental';
@@ -211,9 +228,6 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
             } satisfies ChangedContent);
           }
 
-          // Re-compile the input
-          const start = process.hrtime.bigint();
-
           // Track the compiled CSS
           let compiledCss = '';
 
@@ -231,39 +245,39 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
             fullRebuildPaths = inputFilePath ? [inputFilePath] : [];
 
             // Create a new compiler, given the new `input`
-            [compiler, scanner] = await createCompiler(input);
+            [compiler, scanner] = await createCompiler(input, I);
 
             // Scan the directory for candidates
-            if (env.DEBUG)
-              console.time('[@tailwindcss/cli] Scan for candidates');
+            DEBUG && I.start('Scan for candidates');
             const candidates = scanner.scan();
-            if (env.DEBUG)
-              console.timeEnd('[@tailwindcss/cli] Scan for candidates');
+            DEBUG && I.end('Scan for candidates');
 
             // Setup new watchers
+            DEBUG && I.start('Setup new watchers');
             const newCleanupWatchers = await createWatchers(
               watchDirectories(scanner),
               handle,
             );
+            DEBUG && I.end('Setup new watchers');
 
             // Clear old watchers
+            DEBUG && I.start('Cleanup old watchers');
             await cleanupWatchers();
+            DEBUG && I.end('Cleanup old watchers');
 
             cleanupWatchers = newCleanupWatchers;
 
             // Re-compile the CSS
-            if (env.DEBUG) console.time('[@tailwindcss/cli] Build CSS');
+            DEBUG && I.start('Build CSS');
             compiledCss = compiler.build(candidates);
-            if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Build CSS');
+            DEBUG && I.end('Build CSS');
           }
 
           // Scan changed files only for incremental rebuilds.
           else if (rebuildStrategy === 'incremental') {
-            if (env.DEBUG)
-              console.time('[@tailwindcss/cli] Scan for candidates');
+            DEBUG && I.start('Scan for candidates');
             const newCandidates = scanner.scanFiles(changedFiles);
-            if (env.DEBUG)
-              console.timeEnd('[@tailwindcss/cli] Scan for candidates');
+            DEBUG && I.end('Scan for candidates');
 
             // No new candidates found which means we don't need to write to
             // disk, and can return early.
@@ -273,12 +287,12 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
               return;
             }
 
-            if (env.DEBUG) console.time('[@tailwindcss/cli] Build CSS');
+            DEBUG && I.start('Build CSS');
             compiledCss = compiler.build(newCandidates);
-            if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Build CSS');
+            DEBUG && I.end('Build CSS');
           }
 
-          await write(compiledCss, args);
+          await write(compiledCss, args, I);
 
           const end = process.hrtime.bigint();
           eprintln(`Done in ${formatDuration(end - start)}`);
@@ -306,16 +320,18 @@ export async function handle(args: Result<ReturnType<typeof options>>) {
     // Keep the process running
     process.stdin.resume();
   }
-  if (env.DEBUG) console.time('[@tailwindcss/cli] Scan for candidates');
+
+  DEBUG && I.start('Scan for candidates');
   const candidates = scanner.scan();
-  if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Scan for candidates');
-  if (env.DEBUG) console.time('[@tailwindcss/cli] Build CSS');
+  DEBUG && I.end('Scan for candidates');
+  DEBUG && I.start('Build CSS');
   const output = await handleError(() => compiler.build(candidates));
-  if (env.DEBUG) console.timeEnd('[@tailwindcss/cli] Build CSS');
-  await write(output, args);
+  DEBUG && I.end('Build CSS');
+  await write(output, args, I);
+
   const end = process.hrtime.bigint();
-  // eprintln(header());
-  // eprintln();
+  eprintln(header());
+  eprintln();
   eprintln(`Done in ${formatDuration(end - start)}`);
 }
 
@@ -340,8 +356,7 @@ async function createWatchers(dirs: string[], cb: (files: string[]) => void) {
   dirs = dirs.sort((a, z) => a.length - z.length);
 
   // 2. Remove any directories that are children of another directory
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const toRemove: any = [];
+  const toRemove = [];
 
   // /project-a 0
   // /project-a/src 1
@@ -452,12 +467,12 @@ function optimizeCss(
         deepSelectorCombinator: true,
       },
       include: Features.Nesting,
-      exclude: Features.LogicalProperties,
+      exclude: Features.LogicalProperties | Features.DirSelector,
       targets: {
         safari: (16 << 16) | (4 << 8),
         ios_saf: (16 << 16) | (4 << 8),
         firefox: 128 << 16,
-        chrome: 120 << 16,
+        chrome: 111 << 16,
       },
       errorRecovery: true,
     }).code;
